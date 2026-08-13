@@ -24,6 +24,9 @@ async function isRateLimited(email: string, ip: string) {
 }
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
+  // Required outside Vercel (e.g. behind our own Apache reverse proxy) —
+  // without this Auth.js rejects requests with "UntrustedHost".
+  trustHost: true,
   session: { strategy: "jwt" },
   pages: { signIn: "/admin/login" },
   providers: [

@@ -1,0 +1,39 @@
+# Apache VirtualHost for caringtouchreno.com — reverse proxy to the Next.js
+# app managed by PM2 on port 3011 (see ecosystem.config.js).
+#
+# This is a SEPARATE file from your other sites' vhosts, so enabling it does
+# not touch their configuration. Install as its own file, don't merge it into
+# an existing conf.
+#
+# Setup:
+#   1. sudo a2enmod proxy proxy_http headers
+#   2. sudo cp deploy/apache-caringtouchreno.conf.example \
+#        /etc/apache2/sites-available/caringtouchreno.conf
+#   3. Edit ServerAdmin below if you want a real contact address.
+#   4. sudo a2ensite caringtouchreno.conf
+#   5. sudo apachectl configtest   (confirm no syntax errors before reloading)
+#   6. sudo systemctl reload apache2
+#   7. sudo certbot --apache -d caringtouchreno.com -d www.caringtouchreno.com
+#      (Certbot rewrites ONLY this vhost file to add the HTTPS block — it
+#      does not modify other sites' configs.)
+
+<VirtualHost *:80>
+    ServerName caringtouchreno.com
+    ServerAlias www.caringtouchreno.com
+    ServerAdmin webmaster@caringtouchreno.com
+
+    ProxyPreserveHost On
+    ProxyRequests Off
+
+    RequestHeader set X-Forwarded-Proto "http"
+
+    ProxyPass / http://127.0.0.1:3011/
+    ProxyPassReverse / http://127.0.0.1:3011/
+
+    ErrorLog ${APACHE_LOG_DIR}/caringtouchreno-error.log
+    CustomLog ${APACHE_LOG_DIR}/caringtouchreno-access.log combined
+</VirtualHost>
+
+# After running certbot --apache, it will add a matching <VirtualHost *:443>
+# block below (in the live file on the server) with SSLEngine on and the
+# certificate paths — you don't need to write that part by hand.
