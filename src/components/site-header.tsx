@@ -74,7 +74,7 @@ export function SiteHeader() {
         <div className="hidden items-center gap-3 lg:flex">
           <CartIcon />
           <Link
-            href="/coaching#book"
+            href="/coaching"
             className="inline-flex items-center rounded-full bg-navy-900 px-5 py-2.5 text-sm font-semibold text-cream-50 transition-colors hover:bg-navy-800"
           >
             Book a Session
@@ -129,7 +129,7 @@ export function SiteHeader() {
               </div>
             ))}
             <Link
-              href="/coaching#book"
+              href="/coaching"
               onClick={() => setOpen(false)}
               className="mt-3 inline-flex items-center justify-center rounded-full bg-navy-900 px-5 py-3 text-sm font-semibold text-cream-50"
             >

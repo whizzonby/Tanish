@@ -47,14 +47,16 @@ export function CheckoutForm({
         email: String(form.get("email") ?? ""),
         phone: String(form.get("phone") ?? ""),
       },
-      shippingAddress: {
-        line1: String(form.get("addressLine1") ?? ""),
-        line2: String(form.get("addressLine2") ?? ""),
-        city: String(form.get("city") ?? ""),
-        region: String(form.get("region") ?? ""),
-        postalCode: String(form.get("postalCode") ?? ""),
-        country: String(form.get("country") ?? ""),
-      },
+      shippingAddress: hasPhysicalItems
+        ? {
+            line1: String(form.get("addressLine1") ?? ""),
+            line2: String(form.get("addressLine2") ?? ""),
+            city: String(form.get("city") ?? ""),
+            region: String(form.get("region") ?? ""),
+            postalCode: String(form.get("postalCode") ?? ""),
+            country: String(form.get("country") ?? ""),
+          }
+        : undefined,
       paymentMethod: method,
     };
 
@@ -84,23 +86,30 @@ export function CheckoutForm({
           <Field label="Phone" name="phone" type="tel" />
         </div>
 
-        <div className="space-y-4 border-t border-navy-800/10 pt-6">
-          <p className="text-sm font-semibold text-navy-900">
-            {hasPhysicalItems ? "Shipping address" : "Address (optional)"}
-          </p>
-          <div className="grid gap-4 sm:grid-cols-2">
-            <Field label="Address line 1" name="addressLine1" required={hasPhysicalItems} />
-            <Field label="Address line 2 (optional)" name="addressLine2" />
+        {hasPhysicalItems ? (
+          <div className="space-y-4 border-t border-navy-800/10 pt-6">
+            <p className="text-sm font-semibold text-navy-900">Shipping address</p>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <Field label="Address line 1" name="addressLine1" required />
+              <Field label="Address line 2 (optional)" name="addressLine2" />
+            </div>
+            <div className="grid gap-4 sm:grid-cols-3">
+              <Field label="City" name="city" required />
+              <Field label="Parish / Region" name="region" />
+              <Field label="Postal code" name="postalCode" />
+            </div>
+            <div className="grid gap-4 sm:grid-cols-3">
+              <Field label="Country" name="country" required />
+            </div>
           </div>
-          <div className="grid gap-4 sm:grid-cols-3">
-            <Field label="City" name="city" required={hasPhysicalItems} />
-            <Field label="Parish / Region" name="region" />
-            <Field label="Postal code" name="postalCode" />
+        ) : (
+          <div className="border-t border-navy-800/10 pt-6">
+            <p className="rounded-lg bg-cream-100 px-4 py-3 text-sm text-navy-800/70">
+              This order is digital — no shipping address needed. Your download link will be
+              emailed to you and shown on the confirmation page right after checkout.
+            </p>
           </div>
-          <div className="grid gap-4 sm:grid-cols-3">
-            <Field label="Country" name="country" required={hasPhysicalItems} />
-          </div>
-        </div>
+        )}
 
         <div className="space-y-3 border-t border-navy-800/10 pt-6">
           <p className="text-sm font-semibold text-navy-900">Payment method</p>

@@ -236,11 +236,207 @@ async function seedProducts() {
   console.log(`Seeded book (${book.id}) and ${decorItems.length} decor items (skipped if already present).`);
 }
 
+async function seedCoachingServices() {
+  const service = await prisma.service.upsert({
+    where: { slug: "business-coaching-course" },
+    update: {},
+    create: {
+      slug: "business-coaching-course",
+      category: "COACHING",
+      brand: "PERSONAL",
+      name: "Business Coaching Course",
+      description:
+        "A focused 1:1 coaching session to help you clarify your business idea, cut through the clutter, and build a plan you'll actually follow through on.",
+      longDescription: [
+        "This session is built for business owners who feel like they're doing everything at once and getting traction on nothing. We start by getting honest about what's actually working, what isn't, and what's been cluttering your decision-making — then leave with a clear, specific plan for what to do next.",
+        "**What you'll get:**",
+        "- A structured 60-minute 1:1 session, in person or by video call",
+        "- Help identifying the one or two priorities that actually move your business forward",
+        "- A written summary of what we cover and the next steps you commit to",
+        "- Follow-up email support for one week after your session",
+        "**Who it's for:** Business owners and entrepreneurs who want clarity and a plan, not just encouragement.",
+      ].join("\n\n"),
+      imageUrl: "/images/portrait-3.jpg",
+      priceFromCents: 10000,
+      priceType: "FIXED",
+      requiresQuote: false,
+      isActive: true,
+      sortOrder: 1,
+      availabilityRules: {
+        create: [
+          { dayOfWeek: 2, startTime: "10:00", endTime: "14:00", slotDurationMin: 60 },
+          { dayOfWeek: 4, startTime: "10:00", endTime: "14:00", slotDurationMin: 60 },
+        ],
+      },
+    },
+  });
+  console.log(`Seeded coaching service: ${service.name} (${service.id})`);
+}
+
+async function seedBlogPosts() {
+  const posts: {
+    slug: string;
+    title: string;
+    excerpt: string;
+    tags: string[];
+    coverImage?: string;
+    content: string;
+  }[] = [
+    {
+      slug: "declutter-before-you-scale",
+      title: "Declutter Before You Scale: Why Clarity Comes First in Business",
+      excerpt:
+        "Before you can grow a business — or a life — you have to clear out what's standing in the way. Here's where to start.",
+      tags: ["Coaching", "Business"],
+      coverImage: "/images/portrait-2.jpg",
+      content: `Every business owner I coach comes to me wanting to talk about growth — more clients, more revenue, more reach. But almost every time, the real conversation starts somewhere else: with the clutter.
+
+Not the kind you can see in a junk drawer. The kind that piles up in a business — the offers you never fully committed to, the half-finished plans, the "yes" you said to something that isn't actually your work to do. It clogs the same way a cluttered closet does: quietly, a little at a time, until you can't find what you're actually looking for anymore.
+
+## Clarity is a prerequisite, not a bonus
+
+You cannot scale what you haven't defined. I've sat across from talented, hardworking people who were exhausted from running three different businesses inside one business — because they never decided what to say no to. Growth doesn't fix that. It just makes the mess bigger and more expensive.
+
+## Three questions I ask every client before we talk about growth
+
+1. **What are you doing right now that isn't actually your job?** If you can't answer this clearly, that's the first thing to clear out.
+2. **What does "done" look like for this offer, this week, this goal?** Vague goals create vague clutter. Specific goals create a plan.
+3. **What would you keep if you could only keep three things?** Whatever doesn't make that list is probably what's been slowing you down.
+
+## Clearing the path is the work
+
+This is the same idea behind *Declutter: Your Way to Success* — a cleared space, whether it's a room or a business plan, is what makes the next move possible. Coaching isn't about adding more to your plate. It's about helping you see what's already there clearly enough to move.
+
+If you're ready to get honest about what's cluttering your business, [book a session](/coaching#book) — that's exactly where we'll start.`,
+    },
+    {
+      slug: "signs-your-home-needs-a-deep-clean",
+      title: "5 Signs Your Home Needs a Deep Clean (Not Just a Tidy-Up)",
+      excerpt:
+        "Tidying and deep cleaning aren't the same thing. Here's how to tell which one your space actually needs.",
+      tags: ["Cleaning", "Home"],
+      coverImage: "/images/cleaning-1.jpg",
+      content: `Most of us know the difference between a messy room and a dirty one — but it's easy to keep tidying a space that actually needs a deep clean. Here are five signs it's time to book more than a quick wipe-down.
+
+## 1. Surfaces look clean but still feel off
+
+If counters and floors look fine but the room still doesn't feel fresh, the buildup is happening somewhere you're not looking — behind appliances, inside vents, along baseboards.
+
+## 2. It's been more than a season
+
+Regular tidying handles the day-to-day. But dust, grime, and allergens build up in cycles. A seasonal deep clean resets the space in a way a weekly wipe-down never will.
+
+## 3. You just finished a renovation
+
+Construction dust travels — into vents, light fixtures, and cabinets you didn't even open during the work. A post-construction clean isn't optional if you want the space move-in ready.
+
+## 4. Something has changed in the household
+
+A new pet, a new baby, someone recovering from illness — any shift in who's living in a space is a good reason to reset it properly before day-to-day maintenance takes over again.
+
+## 5. You're dreading having people over
+
+If your first thought about hosting is "I'd have to clean everything first," that's your answer. A deep clean gets you back to a baseline you can maintain with regular tidying.
+
+Our team handles residential, commercial, and post-construction cleaning across Jamaica. [See our cleaning services](/cleaning) or reach out for a quote.`,
+    },
+    {
+      slug: "renovate-or-relocate",
+      title: "Renovate or Relocate? How to Know When a Property Is Worth Saving",
+      excerpt:
+        "Before you decide to move on from a property, it's worth asking what a renovation could actually change.",
+      tags: ["Construction", "Renovation"],
+      coverImage: "/images/construction-2.jpg",
+      content: `We get this question often: "Is it worth renovating, or should I just move?" There's no single right answer, but there is a right way to think through it.
+
+## Start with what's structurally sound
+
+Cosmetic wear — old finishes, dated fixtures, tired paint — is almost always worth renovating around. Structural issues — foundation, roofing, plumbing, electrical — are the real deciding factor. A property with good bones is worth more work than one without them.
+
+## Price the renovation against the alternative
+
+A full comparison isn't just "cost of renovation vs. cost of a new property." It has to include moving costs, the time a search takes, and the value of staying in a location you already know and want.
+
+## Renovate in phases when it makes sense
+
+Not every renovation has to happen at once. Kitchens and bathrooms tend to offer the most day-to-day impact and the best return, so they're often the right place to start if you're renovating in stages rather than all at once.
+
+## Bring in decor and finishing last — not first
+
+A property can be structurally transformed and still feel unfinished without the right interior touches. That's exactly why our decor store exists alongside our construction work: to finish a space, not just rebuild it.
+
+If you're weighing a renovation against a move, [request a quote](/construction-renovation) and we'll help you think it through properly before you commit either way.`,
+    },
+    {
+      slug: "interior-decor-swaps-that-transform-a-room",
+      title: "Small Changes, Big Impact: 7 Interior Decor Swaps That Transform a Room",
+      excerpt:
+        "You don't need a full renovation to change how a room feels. A few intentional swaps go a long way.",
+      tags: ["Decor", "Home"],
+      coverImage: "/images/interior-1.jpg",
+      content: `Not every transformation requires construction. Sometimes a room just needs a few intentional pieces to feel finished. Here are seven swaps that consistently make the biggest difference.
+
+1. **Swap mismatched storage for a curated basket set.** Storage that looks good doesn't need to be hidden — it becomes part of the room.
+2. **Add texture with linen.** A few linen accent pillows soften a room faster than almost anything else.
+3. **Bring in one reclaimed-wood piece.** A single natural-material accent table grounds a space that feels too polished or too new.
+4. **Edit before you add.** Clearing what doesn't belong makes room for what does — this is decluttering applied to design.
+5. **Layer, don't match.** A room with layered textures and tones feels lived-in; a room that matches too perfectly feels staged.
+6. **Let function lead.** The most beautiful pieces are the ones you actually use — a basket that holds something, a table that earns its spot.
+7. **Finish with one intentional detail.** One well-chosen piece, placed with intention, does more than five pieces placed to fill space.
+
+Browse our curated pieces in the [decor store](/store) — each one is chosen the same way we approach every space: with care, and with a clear sense of what it's for.`,
+    },
+    {
+      slug: "introducing-business-coaching-course",
+      title: "New: A Business Coaching Course to Help You Get Unstuck",
+      excerpt:
+        "A focused, one-on-one session built for business owners who need clarity, not just encouragement.",
+      tags: ["Coaching", "Announcement"],
+      coverImage: "/images/portrait-2.jpg",
+      content: `I'm introducing something new: a dedicated **Business Coaching Course** — a focused one-on-one session built specifically for people building or running a business.
+
+## Who it's for
+
+This session is for you if you're juggling too many priorities, unsure what to focus on next, or feel like your business has more clutter than clarity. It's practical, not theoretical — we work with where your business actually is right now.
+
+## What it costs
+
+The Business Coaching Course is $100 per session, booked directly through the calendar on the [coaching page](/coaching#book). No long-term package required to get started.
+
+## What to expect
+
+We'll spend the session getting honest about what's working, what isn't, and what needs to be cleared out before you can move forward with confidence — the same approach behind everything I do, from coaching to construction to *Declutter: Your Way to Success*.
+
+[Book your session](/coaching#book) and let's get to work.`,
+    },
+  ];
+
+  for (const post of posts) {
+    await prisma.blogPost.upsert({
+      where: { slug: post.slug },
+      update: {},
+      create: {
+        slug: post.slug,
+        title: post.title,
+        excerpt: post.excerpt,
+        content: post.content,
+        coverImage: post.coverImage,
+        tags: post.tags,
+        status: "PUBLISHED",
+        publishedAt: new Date(),
+      },
+    });
+  }
+  console.log(`Seeded ${posts.length} blog posts (skipped if already present).`);
+}
+
 async function main() {
   await seedAdminUser();
   await seedContentBlocks();
   await seedServices();
+  await seedCoachingServices();
   await seedProducts();
+  await seedBlogPosts();
 }
 
 main()

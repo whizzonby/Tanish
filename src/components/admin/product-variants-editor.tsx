@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { FileUploadField } from "@/components/admin/file-upload-field";
 
 export type VariantRow = {
   id?: string;
@@ -9,13 +10,14 @@ export type VariantRow = {
   priceDollars: string;
   stock: string;
   isDigital: boolean;
+  downloadUrl: string;
 };
 
 export function ProductVariantsEditor({ initialVariants }: { initialVariants: VariantRow[] }) {
   const [variants, setVariants] = useState<VariantRow[]>(
     initialVariants.length > 0
       ? initialVariants
-      : [{ label: "", sku: "", priceDollars: "", stock: "", isDigital: false }]
+      : [{ label: "", sku: "", priceDollars: "", stock: "", isDigital: false, downloadUrl: "" }]
   );
 
   function update(index: number, patch: Partial<VariantRow>) {
@@ -23,7 +25,10 @@ export function ProductVariantsEditor({ initialVariants }: { initialVariants: Va
   }
 
   function addRow() {
-    setVariants((prev) => [...prev, { label: "", sku: "", priceDollars: "", stock: "", isDigital: false }]);
+    setVariants((prev) => [
+      ...prev,
+      { label: "", sku: "", priceDollars: "", stock: "", isDigital: false, downloadUrl: "" },
+    ]);
   }
 
   function removeRow(index: number) {
@@ -87,6 +92,15 @@ export function ProductVariantsEditor({ initialVariants }: { initialVariants: Va
                 </button>
               )}
             </div>
+            {variant.isDigital && (
+              <div className="col-span-2 sm:col-span-6">
+                <FileUploadField
+                  label="Download file (sent to the customer after purchase)"
+                  value={variant.downloadUrl}
+                  onChange={(url) => update(i, { downloadUrl: url })}
+                />
+              </div>
+            )}
           </div>
         ))}
       </div>

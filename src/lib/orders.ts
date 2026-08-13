@@ -22,7 +22,10 @@ export async function decrementStockForOrder(orderId: string) {
 }
 
 export async function sendOrderConfirmation(orderId: string) {
-  const order = await prisma.order.findUnique({ where: { id: orderId }, include: { items: true } });
+  const order = await prisma.order.findUnique({
+    where: { id: orderId },
+    include: { items: { include: { variant: true } } },
+  });
   if (!order) return;
 
   const { subject, html } = orderConfirmationEmail({
@@ -30,7 +33,13 @@ export async function sendOrderConfirmation(orderId: string) {
     customerName: order.customerName,
     totalCents: order.totalCents,
     paymentMethod: order.paymentMethod,
-    items: order.items,
+    items: order.items.map((item) => ({
+      nameSnapshot: item.nameSnapshot,
+      priceSnapshot: item.priceSnapshot,
+      quantity: item.quantity,
+      isDigital: item.isDigital,
+      downloadUrl: item.variant.downloadUrl,
+    })),
   });
 
   await sendTransactionalEmail({ to: order.email, subject, html });

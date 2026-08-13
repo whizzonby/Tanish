@@ -1,5 +1,6 @@
 import { ImageUploadField } from "@/components/admin/image-upload-field";
-import type { Service } from "@prisma/client";
+import { AvailabilityRulesEditor, type AvailabilityRow } from "@/components/admin/availability-rules-editor";
+import type { AvailabilityRule, Service } from "@prisma/client";
 
 const categories = ["COACHING", "CLEANING", "CONSTRUCTION", "RENOVATION"] as const;
 const brands = ["PERSONAL", "CARING_TOUCH"] as const;
@@ -8,10 +9,21 @@ const priceTypes = ["FIXED", "HOURLY", "QUOTE"] as const;
 export function ServiceForm({
   action,
   service,
+  availabilityRules,
 }: {
   action: (formData: FormData) => void;
   service?: Service;
+  availabilityRules?: AvailabilityRule[];
 }) {
+  const initialAvailability: AvailabilityRow[] = (availabilityRules ?? []).map((r) => ({
+    id: r.id,
+    dayOfWeek: r.dayOfWeek,
+    startTime: r.startTime,
+    endTime: r.endTime,
+    slotDurationMin: r.slotDurationMin,
+    isActive: r.isActive,
+  }));
+
   return (
     <form action={action} className="space-y-6 rounded-2xl border border-navy-800/10 bg-white p-6 shadow-sm">
       {service && <input type="hidden" name="id" value={service.id} />}
@@ -31,7 +43,7 @@ export function ServiceForm({
 
       <div>
         <label className="mb-1.5 block text-sm font-medium text-navy-900" htmlFor="description">
-          Description
+          Short description (shown on the package card)
         </label>
         <textarea
           id="description"
@@ -39,6 +51,19 @@ export function ServiceForm({
           rows={3}
           required
           defaultValue={service?.description}
+          className="w-full rounded-lg border border-navy-800/15 px-4 py-2.5 text-sm text-navy-900 focus:border-gold-500 focus:outline-none"
+        />
+      </div>
+
+      <div>
+        <label className="mb-1.5 block text-sm font-medium text-navy-900" htmlFor="longDescription">
+          Full description (detail page — supports Markdown, e.g. bullet points for benefits)
+        </label>
+        <textarea
+          id="longDescription"
+          name="longDescription"
+          rows={6}
+          defaultValue={service?.longDescription ?? ""}
           className="w-full rounded-lg border border-navy-800/15 px-4 py-2.5 text-sm text-navy-900 focus:border-gold-500 focus:outline-none"
         />
       </div>
@@ -153,6 +178,10 @@ export function ServiceForm({
       </div>
 
       <ImageUploadField name="imageUrl" label="Image (optional)" defaultValue={service?.imageUrl} />
+
+      <div className="border-t border-navy-800/10 pt-6">
+        <AvailabilityRulesEditor initialRules={initialAvailability} />
+      </div>
 
       <button
         type="submit"

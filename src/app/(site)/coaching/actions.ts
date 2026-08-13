@@ -49,6 +49,7 @@ export async function createBooking(input: {
     await sendTransactionalEmail({ to: booking.customerEmail, subject, html });
 
     revalidatePath("/coaching");
+    revalidatePath(`/coaching/${booking.service.slug}/book`);
     return { ok: true };
   } catch (err) {
     if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === "P2002") {

@@ -11,7 +11,15 @@ type ProductWithVariants = {
   images: unknown;
   isActive: boolean;
   comingSoon: boolean;
-  variants: { id: string; label: string; sku: string; priceCents: number; stock: number | null; isDigital: boolean }[];
+  variants: {
+    id: string;
+    label: string;
+    sku: string;
+    priceCents: number;
+    stock: number | null;
+    isDigital: boolean;
+    downloadUrl: string | null;
+  }[];
 };
 
 export function ProductForm({
@@ -28,6 +36,7 @@ export function ProductForm({
     priceDollars: (v.priceCents / 100).toFixed(2),
     stock: v.stock == null ? "" : String(v.stock),
     isDigital: v.isDigital,
+    downloadUrl: v.downloadUrl ?? "",
   }));
 
   const images = Array.isArray(product?.images) ? (product?.images as string[]) : [];

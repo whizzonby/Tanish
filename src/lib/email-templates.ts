@@ -22,7 +22,13 @@ export function orderConfirmationEmail(order: {
   customerName: string;
   totalCents: number;
   paymentMethod: string;
-  items: { nameSnapshot: string; priceSnapshot: number; quantity: number }[];
+  items: {
+    nameSnapshot: string;
+    priceSnapshot: number;
+    quantity: number;
+    isDigital?: boolean;
+    downloadUrl?: string | null;
+  }[];
 }) {
   const itemRows = order.items
     .map(
@@ -36,11 +42,27 @@ export function orderConfirmationEmail(order: {
       ? "We'll be in touch to arrange payment on delivery or pickup."
       : "Your payment has been received — thank you!";
 
+  const downloadItems = order.items.filter((item) => item.isDigital && item.downloadUrl);
+  const downloadsSection =
+    downloadItems.length > 0
+      ? `
+      <div style="margin:0 0 20px; padding:16px; background:#faf7f0; border-radius:8px;">
+        <p style="margin:0 0 8px; font-weight:bold;">Your downloads</p>
+        ${downloadItems
+          .map(
+            (item) =>
+              `<p style="margin:4px 0;"><a href="${item.downloadUrl}" style="color:#b8860b;">Download ${item.nameSnapshot}</a></p>`
+          )
+          .join("")}
+      </div>`
+      : "";
+
   return {
     subject: `Order confirmed — ${order.orderNumber}`,
     html: wrapper(`
       <h1 style="font-size:22px; margin:0 0 12px;">Thank you, ${order.customerName}!</h1>
       <p style="margin:0 0 20px; color:#374151;">Your order <strong>${order.orderNumber}</strong> is confirmed. ${paymentNote}</p>
+      ${downloadsSection}
       <table style="width:100%; border-collapse:collapse; font-size:14px;">
         ${itemRows}
         <tr><td style="padding-top:12px; border-top:1px solid #e5e7eb; font-weight:bold;">Total</td><td style="padding-top:12px; border-top:1px solid #e5e7eb; text-align:right; font-weight:bold;">${formatPrice(order.totalCents)}</td></tr>

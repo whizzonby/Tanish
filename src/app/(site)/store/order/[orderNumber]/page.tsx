@@ -31,11 +31,15 @@ export default async function OrderConfirmationPage(
   const { orderNumber } = await props.params;
   const order = await prisma.order.findUnique({
     where: { orderNumber },
-    include: { items: true },
+    include: { items: { include: { variant: true } } },
   });
   if (!order) notFound();
 
   const message = statusMessages[order.status] ?? statusMessages.PENDING_PAYMENT;
+  const canDownload = order.status === "PAID" || order.status === "COD_PENDING";
+  const downloadItems = canDownload
+    ? order.items.filter((item) => item.isDigital && item.variant.downloadUrl)
+    : [];
 
   return (
     <section className="mx-auto max-w-2xl px-6 py-20 lg:px-8">
@@ -45,6 +49,23 @@ export default async function OrderConfirmationPage(
         </p>
         <h1 className="mt-3 font-serif text-3xl font-semibold text-navy-950">{message.title}</h1>
         <p className="mt-3 text-navy-800/70">{message.body}</p>
+
+        {downloadItems.length > 0 && (
+          <div className="mt-8 rounded-xl bg-cream-100 p-5">
+            <p className="font-serif text-sm font-semibold text-navy-950">Your downloads</p>
+            <div className="mt-3 space-y-2">
+              {downloadItems.map((item) => (
+                <a
+                  key={item.id}
+                  href={item.variant.downloadUrl!}
+                  className="inline-flex items-center gap-2 rounded-full bg-navy-900 px-5 py-2.5 text-sm font-semibold text-cream-50 hover:bg-navy-800"
+                >
+                  Download {item.nameSnapshot}
+                </a>
+              ))}
+            </div>
+          </div>
+        )}
 
         <div className="mt-8 divide-y divide-navy-800/10 border-t border-navy-800/10">
           {order.items.map((item) => (

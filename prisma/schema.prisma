@@ -117,6 +117,7 @@ model Service {
   brand         Brand
   name          String
   description   String
+  longDescription String?
   priceFromCents Int?
   priceType     PriceType
   requiresQuote Boolean         @default(false)

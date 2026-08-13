@@ -2,14 +2,20 @@
 
 import { useState, type FormEvent } from "react";
 
-export function BookingRequestForm() {
+export function BookingRequestForm({
+  serviceId,
+  serviceName,
+}: {
+  serviceId?: string;
+  serviceName?: string;
+} = {}) {
   const [status, setStatus] = useState<"idle" | "loading" | "done" | "error">("idle");
 
   async function onSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setStatus("loading");
     const form = new FormData(e.currentTarget);
-    const payload = Object.fromEntries(form.entries());
+    const payload = { ...Object.fromEntries(form.entries()), serviceId, serviceName };
 
     try {
       const res = await fetch("/api/bookings/request", {
@@ -43,10 +49,18 @@ export function BookingRequestForm() {
       onSubmit={onSubmit}
       className="grid gap-5 rounded-2xl border border-navy-800/10 bg-white p-8 shadow-sm sm:grid-cols-2"
     >
+      {serviceName && (
+        <p className="text-sm font-medium text-navy-900 sm:col-span-2">
+          Requesting: {serviceName}
+        </p>
+      )}
       <Field label="Full name" name="name" required />
       <Field label="Email" name="email" type="email" required />
       <Field label="Phone" name="phone" type="tel" />
-      <Field label="Preferred date & time" name="preferredTime" placeholder="e.g. Tue Aug 18, 3pm EST" />
+      <div className="grid grid-cols-2 gap-3">
+        <Field label="Preferred date" name="preferredDate" type="date" />
+        <Field label="Preferred time" name="preferredTime" type="time" />
+      </div>
       <div className="sm:col-span-2">
         <label className="mb-1.5 block text-sm font-medium text-navy-900" htmlFor="message">
           What would you like to focus on?

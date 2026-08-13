@@ -67,7 +67,7 @@ export default async function Home() {
             <p className="mt-6 max-w-lg text-lg text-cream-100/80">{hero.body}</p>
             <div className="mt-9 flex flex-wrap items-center gap-4">
               <Link
-                href="/coaching#book"
+                href="/coaching"
                 className="inline-flex items-center rounded-full bg-gold-500 px-6 py-3 text-sm font-semibold text-navy-950 transition-colors hover:bg-gold-400"
               >
                 Book a Coaching Session

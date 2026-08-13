@@ -65,6 +65,7 @@ async function syncVariants(productId: string, variants: VariantRow[]) {
       priceCents: Math.round(Number(variant.priceDollars || 0) * 100),
       stock: variant.isDigital || variant.stock === "" ? null : Number(variant.stock),
       isDigital: variant.isDigital,
+      downloadUrl: variant.isDigital && variant.downloadUrl ? variant.downloadUrl : null,
     };
     if (variant.id) {
       await prisma.productVariant.update({ where: { id: variant.id }, data });

@@ -12,23 +12,69 @@ export type SlotOption = {
   timeLabel: string;
 };
 
+function dateKey(iso: string) {
+  // America/Jamaica has no DST (fixed UTC-5), so a straight UTC-5 shift is safe.
+  const d = new Date(new Date(iso).getTime() - 5 * 60 * 60 * 1000);
+  return `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, "0")}-${String(d.getUTCDate()).padStart(2, "0")}`;
+}
+
+function monthKey(key: string) {
+  return key.slice(0, 7);
+}
+
 export function CoachingBookingCalendar({ slots }: { slots: SlotOption[] }) {
   const [availableSlots, setAvailableSlots] = useState(slots);
   const [selected, setSelected] = useState<SlotOption | null>(null);
+  const [selectedDay, setSelectedDay] = useState<string | null>(null);
   const [status, setStatus] = useState<"idle" | "loading" | "done" | "error">("idle");
   const [error, setError] = useState<string | null>(null);
 
-  const grouped = useMemo(() => {
+  const slotsByDay = useMemo(() => {
     const map = new Map<string, SlotOption[]>();
     for (const slot of availableSlots) {
-      const list = map.get(slot.dateLabel) ?? [];
+      const key = dateKey(slot.startAtIso);
+      const list = map.get(key) ?? [];
       list.push(slot);
-      map.set(slot.dateLabel, list);
+      map.set(key, list);
     }
-    return Array.from(map.entries());
+    return map;
   }, [availableSlots]);
 
-  const visibleDays = grouped.slice(0, 10);
+  const months = useMemo(() => {
+    const keys = Array.from(new Set(Array.from(slotsByDay.keys()).map(monthKey))).sort();
+    return keys.slice(0, 2);
+  }, [slotsByDay]);
+
+  const [activeMonthIndex, setActiveMonthIndex] = useState(0);
+  const activeMonth = months[activeMonthIndex] ?? months[0];
+
+  const calendarWeeks = useMemo(() => {
+    if (!activeMonth) return [];
+    const [year, month] = activeMonth.split("-").map(Number);
+    const firstOfMonth = new Date(Date.UTC(year, month - 1, 1));
+    const daysInMonth = new Date(Date.UTC(year, month, 0)).getUTCDate();
+    const startWeekday = firstOfMonth.getUTCDay();
+
+    const cells: (string | null)[] = Array(startWeekday).fill(null);
+    for (let day = 1; day <= daysInMonth; day++) {
+      cells.push(`${activeMonth}-${String(day).padStart(2, "0")}`);
+    }
+    while (cells.length % 7 !== 0) cells.push(null);
+
+    const weeks: (string | null)[][] = [];
+    for (let i = 0; i < cells.length; i += 7) weeks.push(cells.slice(i, i + 7));
+    return weeks;
+  }, [activeMonth]);
+
+  const monthLabel = activeMonth
+    ? new Date(`${activeMonth}-01T12:00:00Z`).toLocaleDateString("en-US", {
+        month: "long",
+        year: "numeric",
+        timeZone: "UTC",
+      })
+    : "";
+
+  const daySlots = selectedDay ? (slotsByDay.get(selectedDay) ?? []) : [];
 
   async function onConfirm(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -78,33 +124,99 @@ export function CoachingBookingCalendar({ slots }: { slots: SlotOption[] }) {
 
   return (
     <div className="rounded-2xl border border-navy-800/10 bg-white p-6 shadow-sm sm:p-8">
-      <div className="grid gap-6 sm:grid-cols-2">
-        {visibleDays.map(([dateLabel, daySlots]) => (
-          <div key={dateLabel}>
-            <p className="mb-2 text-sm font-semibold text-navy-950">{dateLabel}</p>
-            <div className="flex flex-wrap gap-2">
-              {daySlots.map((slot) => (
-                <button
-                  key={slot.startAtIso}
-                  type="button"
-                  onClick={() => {
-                    setSelected(slot);
-                    setStatus("idle");
-                    setError(null);
-                  }}
-                  className={`rounded-full border px-3 py-1.5 text-xs font-medium transition-colors ${
-                    selected?.startAtIso === slot.startAtIso
-                      ? "border-navy-900 bg-navy-900 text-cream-50"
-                      : "border-navy-800/20 text-navy-800 hover:border-navy-800/40"
-                  }`}
-                >
-                  {slot.timeLabel}
-                </button>
-              ))}
-            </div>
+      <div className="flex items-center justify-between">
+        <p className="font-serif text-lg font-semibold text-navy-950">{monthLabel}</p>
+        {months.length > 1 && (
+          <div className="flex gap-2">
+            <button
+              type="button"
+              disabled={activeMonthIndex === 0}
+              onClick={() => setActiveMonthIndex((i) => Math.max(0, i - 1))}
+              className="rounded-full border border-navy-800/15 px-3 py-1 text-xs font-medium text-navy-800 disabled:opacity-30"
+            >
+              &larr;
+            </button>
+            <button
+              type="button"
+              disabled={activeMonthIndex === months.length - 1}
+              onClick={() => setActiveMonthIndex((i) => Math.min(months.length - 1, i + 1))}
+              className="rounded-full border border-navy-800/15 px-3 py-1 text-xs font-medium text-navy-800 disabled:opacity-30"
+            >
+              &rarr;
+            </button>
           </div>
+        )}
+      </div>
+
+      <div className="mt-4 grid grid-cols-7 gap-1 text-center text-[11px] font-semibold uppercase tracking-wide text-navy-800/50">
+        {["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"].map((d) => (
+          <div key={d}>{d}</div>
         ))}
       </div>
+      <div className="mt-1 grid grid-cols-7 gap-1">
+        {calendarWeeks.flat().map((day, i) => {
+          if (!day) return <div key={i} />;
+          const has = slotsByDay.has(day);
+          const dayNum = Number(day.slice(-2));
+          const isSelected = selectedDay === day;
+          return (
+            <button
+              key={day}
+              type="button"
+              disabled={!has}
+              onClick={() => {
+                setSelectedDay(day);
+                setSelected(null);
+                setStatus("idle");
+                setError(null);
+              }}
+              className={`aspect-square rounded-lg text-sm font-medium transition-colors ${
+                isSelected
+                  ? "bg-navy-900 text-cream-50"
+                  : has
+                    ? "bg-cream-100 text-navy-900 hover:bg-gold-100"
+                    : "text-navy-800/25"
+              }`}
+            >
+              {dayNum}
+            </button>
+          );
+        })}
+      </div>
+
+      {selectedDay && (
+        <div className="mt-6 border-t border-navy-800/10 pt-6">
+          <p className="mb-2 text-sm font-semibold text-navy-950">
+            Available times —{" "}
+            {new Date(`${selectedDay}T12:00:00Z`).toLocaleDateString("en-US", {
+              weekday: "long",
+              month: "long",
+              day: "numeric",
+              timeZone: "UTC",
+            })}
+          </p>
+          <div className="flex flex-wrap gap-2">
+            {daySlots.map((slot) => (
+              <button
+                key={slot.startAtIso}
+                type="button"
+                onClick={() => {
+                  setSelected(slot);
+                  setStatus("idle");
+                  setError(null);
+                }}
+                className={`rounded-full border px-3 py-1.5 text-xs font-medium transition-colors ${
+                  selected?.startAtIso === slot.startAtIso
+                    ? "border-navy-900 bg-navy-900 text-cream-50"
+                    : "border-navy-800/20 text-navy-800 hover:border-navy-800/40"
+                }`}
+              >
+                {slot.timeLabel}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
 
       {selected && (
         <form
