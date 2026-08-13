@@ -1,0 +1,267 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum ServiceCategory {
+  COACHING
+  CLEANING
+  CONSTRUCTION
+  RENOVATION
+}
+
+enum Brand {
+  PERSONAL
+  CARING_TOUCH
+}
+
+enum PriceType {
+  FIXED
+  HOURLY
+  QUOTE
+}
+
+enum BookingStatus {
+  CONFIRMED
+  CANCELLED
+  COMPLETED
+  NO_SHOW
+}
+
+enum QuoteStatus {
+  NEW
+  CONTACTED
+  QUOTED
+  WON
+  LOST
+}
+
+enum ProductType {
+  BOOK
+  DECOR
+}
+
+enum OrderStatus {
+  PENDING_PAYMENT
+  PAID
+  COD_PENDING
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELLED
+  REFUNDED
+}
+
+enum PaymentMethod {
+  PAYPAL
+  WIPAY
+  COD
+}
+
+enum PostStatus {
+  DRAFT
+  PUBLISHED
+}
+
+enum SubscriberStatus {
+  SUBSCRIBED
+  UNSUBSCRIBED
+  PENDING_CONFIRMATION
+}
+
+model AdminUser {
+  id           String    @id @default(cuid())
+  email        String    @unique
+  passwordHash String
+  role         String    @default("ADMIN")
+  lastLoginAt  DateTime?
+  createdAt    DateTime  @default(now())
+}
+
+model LoginAttempt {
+  id        String   @id @default(cuid())
+  email     String
+  ip        String
+  success   Boolean
+  createdAt DateTime @default(now())
+
+  @@index([email, createdAt])
+}
+
+/// Generic CMS-editable content blocks (hero, about, sub-brand intros, etc.)
+/// instead of a rigid settings table, so new editable sections don't need a migration.
+model ContentBlock {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  title     String?
+  body      String?
+  imageUrl  String?
+  metadata  Json?
+  updatedAt DateTime @updatedAt
+}
+
+model MediaAsset {
+  id        String   @id @default(cuid())
+  url       String
+  altText   String?
+  createdAt DateTime @default(now())
+}
+
+model Service {
+  id            String          @id @default(cuid())
+  slug          String          @unique
+  category      ServiceCategory
+  brand         Brand
+  name          String
+  description   String
+  priceFromCents Int?
+  priceType     PriceType
+  requiresQuote Boolean         @default(false)
+  imageUrl      String?
+  isActive      Boolean         @default(true)
+  sortOrder     Int             @default(0)
+
+  availabilityRules AvailabilityRule[]
+  bookings          Booking[]
+  quoteRequests     QuoteRequest[]
+}
+
+/// Admin-defined recurring weekly availability, used to compute open slots on read.
+model AvailabilityRule {
+  id              String  @id @default(cuid())
+  serviceId       String
+  service         Service @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  dayOfWeek       Int
+  startTime       String
+  endTime         String
+  slotDurationMin Int     @default(60)
+  timezone        String  @default("America/Jamaica")
+  isActive        Boolean @default(true)
+}
+
+model Booking {
+  id            String        @id @default(cuid())
+  serviceId     String
+  service       Service       @relation(fields: [serviceId], references: [id])
+  startAt       DateTime
+  endAt         DateTime
+  customerName  String
+  customerEmail String
+  customerPhone String?
+  status        BookingStatus @default(CONFIRMED)
+  notes         String?
+  createdAt     DateTime      @default(now())
+
+  @@unique([serviceId, startAt])
+}
+
+model QuoteRequest {
+  id                 String      @id @default(cuid())
+  serviceId          String?
+  service            Service?    @relation(fields: [serviceId], references: [id])
+  category           ServiceCategory
+  customerName       String
+  email              String
+  phone              String?
+  address            String?
+  projectDescription String
+  budgetRange        String?
+  attachmentUrls     Json?
+  status             QuoteStatus @default(NEW)
+  createdAt          DateTime    @default(now())
+}
+
+model Product {
+  id              String           @id @default(cuid())
+  slug            String           @unique
+  type            ProductType
+  name            String
+  description     String
+  longDescription String?
+  images          Json
+  isActive        Boolean          @default(true)
+  comingSoon      Boolean          @default(false)
+  createdAt       DateTime         @default(now())
+  variants        ProductVariant[]
+}
+
+model ProductVariant {
+  id          String  @id @default(cuid())
+  productId   String
+  product     Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  label       String
+  sku         String  @unique
+  priceCents  Int
+  currency    String  @default("USD")
+  stock       Int?
+  isDigital   Boolean @default(false)
+  downloadUrl String?
+
+  orderItems OrderItem[]
+}
+
+model Order {
+  id              String        @id @default(cuid())
+  orderNumber     String        @unique
+  customerName    String
+  email           String
+  phone           String?
+  shippingAddress Json?
+  billingAddress  Json?
+  status          OrderStatus   @default(PENDING_PAYMENT)
+  paymentMethod   PaymentMethod
+  paymentRef      String?
+  currency        String        @default("USD")
+  subtotalCents   Int
+  shippingCents   Int           @default(0)
+  totalCents      Int
+  items           OrderItem[]
+  createdAt       DateTime      @default(now())
+}
+
+model OrderItem {
+  id            String         @id @default(cuid())
+  orderId       String
+  order         Order          @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  variantId     String
+  variant       ProductVariant @relation(fields: [variantId], references: [id])
+  nameSnapshot  String
+  priceSnapshot Int
+  quantity      Int
+  isDigital     Boolean        @default(false)
+}
+
+model BlogPost {
+  id          String     @id @default(cuid())
+  slug        String     @unique
+  title       String
+  excerpt     String?
+  content     String
+  coverImage  String?
+  status      PostStatus @default(DRAFT)
+  publishedAt DateTime?
+  tags        String[]
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+}
+
+model NewsletterSubscriber {
+  id           String            @id @default(cuid())
+  email        String            @unique
+  status       SubscriberStatus  @default(SUBSCRIBED)
+  source       String?
+  subscribedAt DateTime          @default(now())
+}
+
+model NewsletterCampaign {
+  id             String    @id @default(cuid())
+  subject        String
+  bodyHtml       String
+  status         String    @default("DRAFT")
+  recipientCount Int?
+  sentAt         DateTime?
+  createdAt      DateTime  @default(now())
+}
