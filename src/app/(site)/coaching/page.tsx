@@ -10,6 +10,12 @@ export const metadata: Metadata = {
     "One-on-one and group life coaching with Taniesha Linton Flemmings. Book a session.",
 };
 
+// Falls back to this window if an admin edit's on-demand revalidation
+// (revalidatePath) doesn't reach this page for any reason — e.g. content
+// written directly via a script (seeding, migrations) rather than the admin
+// UI, which bypasses revalidatePath entirely.
+export const revalidate = 60;
+
 const introDefaults = {
   title: "Clear your mind. Choose your next move.",
   body: "Coaching with Taniesha starts with the same idea behind everything she builds: clarity comes from clearing what's in the way. Sessions are practical, honest, and built around where you actually are — not a one-size-fits-all script.",

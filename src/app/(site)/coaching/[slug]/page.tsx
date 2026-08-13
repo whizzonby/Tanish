@@ -6,6 +6,12 @@ import { prisma } from "@/lib/prisma";
 import { formatPrice } from "@/lib/format";
 import { renderMarkdown } from "@/lib/markdown";
 
+// Falls back to this window if an admin edit's on-demand revalidation
+// (revalidatePath) doesn't reach this page for any reason — e.g. content
+// written directly via a script (seeding, migrations) rather than the admin
+// UI, which bypasses revalidatePath entirely.
+export const revalidate = 60;
+
 export async function generateStaticParams() {
   const services = await prisma.service.findMany({
     where: { category: "COACHING", isActive: true },

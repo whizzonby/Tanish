@@ -4,6 +4,12 @@ import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { NewsletterForm } from "@/components/newsletter-form";
 
+// Falls back to this window if an admin edit's on-demand revalidation
+// (revalidatePath) doesn't reach this page for any reason — e.g. content
+// written directly via a script (seeding, migrations) rather than the admin
+// UI, which bypasses revalidatePath entirely.
+export const revalidate = 60;
+
 export const metadata: Metadata = {
   title: "Blog",
   description: "Notes on decluttering, coaching, and building a life with intention.",
