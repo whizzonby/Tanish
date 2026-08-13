@@ -154,9 +154,15 @@ cd caringtouchreno
 git pull
 npm ci
 npx prisma migrate deploy
+npx prisma db seed
 npm run build
 pm2 restart caringtouchreno
 ```
+
+`db seed` is safe to re-run — it upserts by slug/email and skips anything
+that already exists, so it only inserts what's new (e.g. new blog posts or
+services added in that update) without touching content you've since edited
+in the admin dashboard.
 
 ## Media uploads
 
