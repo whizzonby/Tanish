@@ -4,6 +4,8 @@ export const adminNav = [
   { label: "Services", href: "/admin/services" },
   { label: "Coaching Bookings", href: "/admin/bookings" },
   { label: "Quote Requests", href: "/admin/quotes" },
+  { label: "Careers", href: "/admin/jobs" },
+  { label: "Job Applications", href: "/admin/applications" },
   { label: "Products", href: "/admin/products" },
   { label: "Orders", href: "/admin/orders" },
   { label: "Blog", href: "/admin/blog" },

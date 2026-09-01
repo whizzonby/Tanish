@@ -72,6 +72,27 @@ enum SubscriberStatus {
   PENDING_CONFIRMATION
 }
 
+enum EmploymentType {
+  FULL_TIME
+  PART_TIME
+  CONTRACT
+  TEMPORARY
+}
+
+enum JobStatus {
+  DRAFT
+  OPEN
+  CLOSED
+}
+
+enum ApplicationStatus {
+  NEW
+  REVIEWING
+  INTERVIEW
+  HIRED
+  REJECTED
+}
+
 model AdminUser {
   id           String    @id @default(cuid())
   email        String    @unique
@@ -265,4 +286,44 @@ model NewsletterCampaign {
   recipientCount Int?
   sentAt         DateTime?
   createdAt      DateTime  @default(now())
+}
+
+model JobPosting {
+  id               String         @id @default(cuid())
+  slug             String         @unique
+  title            String
+  department       String?
+  location         String         @default("Kingston, Jamaica")
+  employmentType   EmploymentType @default(PART_TIME)
+  compensation     String?
+  summary          String
+  responsibilities String[]
+  requirements     String[]
+  benefits         String[]
+  status           JobStatus      @default(DRAFT)
+  postedAt         DateTime?
+  closesAt         DateTime?
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+
+  applications JobApplication[]
+}
+
+model JobApplication {
+  id           String            @id @default(cuid())
+  jobId        String
+  job          JobPosting        @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  fullName     String
+  email        String
+  phone        String
+  location     String?
+  availability String?
+  experience   String?
+  coverLetter  String?
+  resumeUrl    String?
+  status       ApplicationStatus @default(NEW)
+  notes        String?
+  createdAt    DateTime          @default(now())
+
+  @@index([jobId, createdAt])
 }

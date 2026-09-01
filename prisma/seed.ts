@@ -430,6 +430,46 @@ We'll spend the session getting honest about what's working, what isn't, and wha
   console.log(`Seeded ${posts.length} blog posts (skipped if already present).`);
 }
 
+async function seedJobPostings() {
+  const job = await prisma.jobPosting.upsert({
+    where: { slug: "part-time-cleaner" },
+    update: {},
+    create: {
+      slug: "part-time-cleaner",
+      title: "Part-Time Cleaner",
+      department: "Cleaning",
+      location: "Kingston, Jamaica",
+      employmentType: "PART_TIME",
+      compensation: "Competitive pay",
+      summary:
+        "Join the Caring Touch Reno team and help us keep spaces clean, safe and welcoming.",
+      responsibilities: [
+        "Clean and sanitize offices, construction sites and facilities",
+        "Sweep, mop, vacuum and dust surfaces",
+        "Empty bins and dispose of waste properly",
+        "Restock supplies as needed",
+        "Follow health, safety and cleaning standards",
+      ],
+      requirements: [
+        "Reliable, punctual and detail-oriented",
+        "Previous cleaning experience is an asset (not required)",
+        "Ability to work independently",
+        "Honest, trustworthy and able to follow instructions",
+        "Available for part-time shifts",
+      ],
+      benefits: [
+        "Flexible schedules to fit your availability",
+        "Competitive pay for your hard work",
+        "Supportive team in a respectful, friendly environment",
+        "Safe and clean work environment — your safety is our priority",
+      ],
+      status: "OPEN",
+      postedAt: new Date(),
+    },
+  });
+  console.log(`Seeded job posting: ${job.title} (${job.id})`);
+}
+
 async function main() {
   await seedAdminUser();
   await seedContentBlocks();
@@ -437,6 +477,7 @@ async function main() {
   await seedCoachingServices();
   await seedProducts();
   await seedBlogPosts();
+  await seedJobPostings();
 }
 
 main()

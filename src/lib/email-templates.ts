@@ -111,6 +111,37 @@ export function quoteNotificationEmail(quote: {
   };
 }
 
+export function jobApplicationNotificationEmail(application: {
+  applicantName: string;
+  jobTitle: string;
+  email: string;
+  phone: string;
+  location?: string | null;
+  availability?: string | null;
+  experience?: string | null;
+  coverLetter?: string | null;
+  resumeUrl?: string | null;
+}) {
+  const line = (label: string, value?: string | null) =>
+    value ? `<p style="margin:0 0 6px;"><strong>${label}:</strong> ${value}</p>` : "";
+
+  return {
+    subject: `New job application — ${application.jobTitle}`,
+    html: wrapper(`
+      <h1 style="font-size:20px; margin:0 0 12px;">New application for ${application.jobTitle}</h1>
+      <p style="margin:0 0 6px;"><strong>${application.applicantName}</strong></p>
+      ${line("Email", application.email)}
+      ${line("Phone", application.phone)}
+      ${line("Location", application.location)}
+      ${line("Availability", application.availability)}
+      ${application.experience ? `<p style="margin:12px 0 4px;"><strong>Experience</strong></p><p style="margin:0; color:#374151; white-space:pre-wrap;">${application.experience}</p>` : ""}
+      ${application.coverLetter ? `<p style="margin:12px 0 4px;"><strong>Message</strong></p><p style="margin:0; color:#374151; white-space:pre-wrap;">${application.coverLetter}</p>` : ""}
+      ${application.resumeUrl ? `<p style="margin:16px 0 0;"><a href="${application.resumeUrl}" style="color:#b8860b;">Download résumé</a></p>` : ""}
+      <p style="margin:16px 0 0; color:#6b7280; font-size:13px;">Review and manage this application in the admin dashboard under Job Applications.</p>
+    `),
+  };
+}
+
 export function contactNotificationEmail(contact: {
   name: string;
   email: string;
