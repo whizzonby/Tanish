@@ -42,51 +42,67 @@ export async function POST(request: Request) {
     );
   }
 
-  let resumeUrl: string | null = null;
   const resume = form.get("resume");
-  if (resume instanceof File && resume.size > 0) {
-    if (resume.size > MAX_RESUME_BYTES) {
-      return NextResponse.json(
-        { error: "Résumé must be smaller than 5MB." },
-        { status: 400 }
-      );
-    }
-    if (!ALLOWED_RESUME_TYPES.has(resume.type)) {
-      return NextResponse.json(
-        { error: "Résumé must be a PDF or Word document." },
-        { status: 400 }
-      );
-    }
-    resumeUrl = await saveUploadedFile(resume);
+  const hasResume = resume instanceof File && resume.size > 0;
+  if (hasResume && resume.size > MAX_RESUME_BYTES) {
+    return NextResponse.json(
+      { error: "Résumé must be smaller than 5MB." },
+      { status: 400 }
+    );
+  }
+  if (hasResume && !ALLOWED_RESUME_TYPES.has(resume.type)) {
+    return NextResponse.json(
+      { error: "Résumé must be a PDF or Word document." },
+      { status: 400 }
+    );
   }
 
-  const application = await prisma.jobApplication.create({
-    data: {
-      jobId,
-      fullName,
-      email,
-      phone,
-      location: str(form.get("location")) || null,
-      availability: str(form.get("availability")) || null,
-      experience: str(form.get("experience")) || null,
-      coverLetter: str(form.get("coverLetter")) || null,
-      resumeUrl,
-    },
-  });
+  try {
+    // A résumé upload that fails (e.g. disk not writable) should not lose the
+    // whole application — save it without the file and carry on.
+    let resumeUrl: string | null = null;
+    if (hasResume) {
+      try {
+        resumeUrl = await saveUploadedFile(resume);
+      } catch (err) {
+        console.error("[careers/apply] résumé upload failed", err);
+      }
+    }
 
-  const settings = await getSiteSettings();
-  const { subject, html } = jobApplicationNotificationEmail({
-    applicantName: application.fullName,
-    jobTitle: job.title,
-    email: application.email,
-    phone: application.phone,
-    location: application.location,
-    availability: application.availability,
-    experience: application.experience,
-    coverLetter: application.coverLetter,
-    resumeUrl: resumeUrl ? `${getSiteUrl()}${resumeUrl}` : null,
-  });
-  await sendTransactionalEmail({ to: settings.email, subject, html });
+    const application = await prisma.jobApplication.create({
+      data: {
+        jobId,
+        fullName,
+        email,
+        phone,
+        location: str(form.get("location")) || null,
+        availability: str(form.get("availability")) || null,
+        experience: str(form.get("experience")) || null,
+        coverLetter: str(form.get("coverLetter")) || null,
+        resumeUrl,
+      },
+    });
 
-  return NextResponse.json({ ok: true });
+    const settings = await getSiteSettings();
+    const { subject, html } = jobApplicationNotificationEmail({
+      applicantName: application.fullName,
+      jobTitle: job.title,
+      email: application.email,
+      phone: application.phone,
+      location: application.location,
+      availability: application.availability,
+      experience: application.experience,
+      coverLetter: application.coverLetter,
+      resumeUrl: resumeUrl ? `${getSiteUrl()}${resumeUrl}` : null,
+    });
+    await sendTransactionalEmail({ to: settings.email, subject, html });
+
+    return NextResponse.json({ ok: true, resumeSaved: hasResume ? resumeUrl !== null : undefined });
+  } catch (err) {
+    console.error("[careers/apply] failed to save application", err);
+    return NextResponse.json(
+      { error: "We couldn't save your application. Please try again or contact us directly." },
+      { status: 500 }
+    );
+  }
 }

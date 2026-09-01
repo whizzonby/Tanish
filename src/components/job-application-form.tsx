@@ -26,7 +26,10 @@ export function JobApplicationForm({
       const res = await fetch("/api/careers/apply", { method: "POST", body: form });
       const data = await res.json().catch(() => null);
       if (!res.ok) {
-        setMessage(data?.error ?? "Something went wrong — please try again.");
+        setMessage(
+          data?.error ??
+            `Something went wrong (error ${res.status}) — please try again or email us.`
+        );
         setStatus("error");
         return;
       }
