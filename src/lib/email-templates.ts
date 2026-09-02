@@ -142,6 +142,26 @@ export function jobApplicationNotificationEmail(application: {
   };
 }
 
+export function coachingApplicationNotificationEmail(application: {
+  applicantName: string;
+  businessName?: string | null;
+  email: string;
+  phone: string;
+  fundingInterest: string;
+}) {
+  return {
+    subject: `New business coaching application — ${application.applicantName}`,
+    html: wrapper(`
+      <h1 style="font-size:20px; margin:0 0 12px;">New business coaching application</h1>
+      <p style="margin:0 0 6px;"><strong>${application.applicantName}</strong>${application.businessName ? ` — ${application.businessName}` : ""}</p>
+      <p style="margin:0 0 6px;"><strong>Email:</strong> ${application.email}</p>
+      <p style="margin:0 0 6px;"><strong>Phone:</strong> ${application.phone}</p>
+      <p style="margin:0 0 6px;"><strong>Funding interest:</strong> ${application.fundingInterest}</p>
+      <p style="margin:16px 0 0; color:#6b7280; font-size:13px;">Review the complete application under Coaching Applications in the admin dashboard.</p>
+    `),
+  };
+}
+
 export function contactNotificationEmail(contact: {
   name: string;
   email: string;

@@ -2,11 +2,12 @@ import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 
 export default async function AdminDashboardPage() {
-  const [newQuotes, upcomingBookings, newApplications, subscribers, activeServices] =
+  const [newQuotes, upcomingBookings, newApplications, newCoachingApplications, subscribers, activeServices] =
     await Promise.all([
       prisma.quoteRequest.count({ where: { status: "NEW" } }),
       prisma.booking.count({ where: { status: "CONFIRMED", startAt: { gte: new Date() } } }),
       prisma.jobApplication.count({ where: { status: "NEW" } }),
+      prisma.coachingApplication.count({ where: { status: "NEW" } }),
       prisma.newsletterSubscriber.count({ where: { status: "SUBSCRIBED" } }),
       prisma.service.count({ where: { isActive: true } }),
     ]);
@@ -15,6 +16,7 @@ export default async function AdminDashboardPage() {
     { label: "New quote requests", value: newQuotes, href: "/admin/quotes" },
     { label: "Upcoming coaching bookings", value: upcomingBookings, href: "/admin/bookings" },
     { label: "New job applications", value: newApplications, href: "/admin/applications" },
+    { label: "New coaching applications", value: newCoachingApplications, href: "/admin/coaching-applications" },
     { label: "Newsletter subscribers", value: subscribers, href: "/admin/newsletter" },
     { label: "Active services", value: activeServices, href: "/admin/services" },
   ];

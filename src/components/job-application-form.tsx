@@ -19,7 +19,11 @@ export function JobApplicationForm({
     setStatus("loading");
     setMessage(null);
 
-    const form = new FormData(e.currentTarget);
+    // React only guarantees currentTarget while the event handler is running.
+    // Keep the form element itself before awaiting the request so the success
+    // path can safely reset it afterward.
+    const formElement = e.currentTarget;
+    const form = new FormData(formElement);
     form.set("jobId", jobId);
 
     try {
@@ -34,7 +38,7 @@ export function JobApplicationForm({
         return;
       }
       setStatus("done");
-      e.currentTarget.reset();
+      formElement.reset();
     } catch {
       setMessage("Something went wrong — please try again.");
       setStatus("error");

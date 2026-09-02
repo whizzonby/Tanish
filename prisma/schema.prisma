@@ -93,6 +93,14 @@ enum ApplicationStatus {
   REJECTED
 }
 
+enum CoachingApplicationStatus {
+  NEW
+  REVIEWING
+  FOLLOW_UP
+  ACCEPTED
+  DECLINED
+}
+
 model AdminUser {
   id           String    @id @default(cuid())
   email        String    @unique
@@ -326,4 +334,34 @@ model JobApplication {
   createdAt    DateTime          @default(now())
 
   @@index([jobId, createdAt])
+}
+
+model CoachingApplication {
+  id                     String            @id @default(cuid())
+  fullLegalName          String
+  preferredName          String?
+  email                  String
+  phone                  String
+  parishCity             String
+  country                String
+  ageRange               String?
+  preferredContactMethod String?
+  businessName           String?
+  businessDetails        Json
+  goalsAndSupport        Json
+  coachingReadiness      Json
+  fundingInterest        String
+  fundingDetails         Json?
+  declarationAccepted    Boolean
+  programmeAcknowledged  Boolean
+  resultsAcknowledged    Boolean
+  fundingAcknowledged    Boolean
+  contactConsent         Boolean
+  electronicSignature    String
+  applicationDate        DateTime
+  status                 CoachingApplicationStatus @default(NEW)
+  notes                  String?
+  createdAt              DateTime          @default(now())
+
+  @@index([status, createdAt])
 }

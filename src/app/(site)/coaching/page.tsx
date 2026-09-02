@@ -49,6 +49,12 @@ export default async function CoachingPage() {
               {intro.title}
             </h1>
             <p className="mt-6 max-w-lg text-cream-100/80">{intro.body}</p>
+            <Link
+              href="/coaching/apply"
+              className="mt-8 inline-flex rounded-full bg-gold-500 px-6 py-3 text-sm font-semibold text-navy-950 hover:bg-gold-400"
+            >
+              Apply for business coaching
+            </Link>
           </div>
           <div className="relative mx-auto aspect-[4/5] w-full max-w-sm overflow-hidden rounded-[2rem] shadow-2xl shadow-navy-950/40">
             <Image
