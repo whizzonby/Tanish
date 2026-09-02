@@ -37,8 +37,15 @@ export function JobApplicationForm({
         setStatus("error");
         return;
       }
+      // Reset while the form is still mounted. Switching to the success state
+      // unmounts it, and reset() must never turn a successful API response into
+      // a visible submission error.
+      try {
+        formElement.reset();
+      } catch {
+        // The application is already saved; a cosmetic reset failure is safe.
+      }
       setStatus("done");
-      formElement.reset();
     } catch {
       setMessage("Something went wrong — please try again.");
       setStatus("error");
