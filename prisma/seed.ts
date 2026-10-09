@@ -271,6 +271,148 @@ async function seedCoachingServices() {
     },
   });
   console.log(`Seeded coaching service: ${service.name} (${service.id})`);
+
+  const course = await prisma.service.upsert({
+    where: { slug: "clear-life-blueprint" },
+    update: {},
+    create: {
+      slug: "clear-life-blueprint",
+      category: "COACHING",
+      brand: "PERSONAL",
+      name: "The Clear Life Blueprint",
+      description:
+        "A six-part 1:1 coaching course covering personal development, mindset, emotional healing, money, decision making, and relationships — so your whole life moves forward, not just one corner of it.",
+      longDescription: `## You've tidied one corner of your life. The rest is still waiting.
+
+You fixed the budget, and the stress followed you anyway. You read the mindset book, and the same argument still happened at home. You made the big decision, then lay awake second-guessing it.
+
+That isn't a lack of discipline. It's what happens when you clean one room of a house and leave the others shut. Your money, your emotions, your relationships, and your choices all share the same walls. Clutter in one of them spills into the rest.
+
+**The Clear Life Blueprint** works through all six, in order, one honest session at a time.
+
+## What this course is
+
+Six private, 60-minute coaching sessions with Taniesha, one for each area of your life. Every session ends with a written plan and one clear thing to do before the next. You don't leave with notes you'll never open. You leave with a next step you've already agreed to.
+
+It follows the same principle behind *Declutter: Your Way to Success*: clear what's in the way first, and the next move becomes obvious.
+
+## The six sessions
+
+### 1. Personal Development: Know where you actually stand
+
+Most plans fail because they start from where you wish you were. We start from where you are.
+
+- A full, honest audit of your life as it is today: what's working, what's stalled, what you've been avoiding
+- Your real values, as opposed to the ones you inherited or think you should have
+- The habits quietly running your days, and which ones have to go
+- A one-page personal vision you can actually measure yourself against
+
+**You leave with:** a clear picture of your starting point and a 90-day focus.
+
+### 2. Mindset: Clear the beliefs that keep you small
+
+You can't build a bigger life on top of a story that says you don't deserve one.
+
+- Naming the limiting beliefs you've stopped noticing because they sound like common sense
+- Where those beliefs came from, and why they made sense once
+- Replacing "I'm just not that kind of person" with evidence from your own life
+- A daily practice for catching the old story before it makes the decision for you
+
+**You leave with:** your three loudest limiting beliefs, rewritten, and a routine to keep them rewritten.
+
+### 3. Emotional Healing: Put down what you've been carrying
+
+Some of what's weighing on you is years old. It's still taking up space.
+
+- Identifying the hurts, disappointments, and losses you've packed away instead of dealt with
+- How unprocessed emotion shows up as overworking, overspending, people-pleasing, or shutting down
+- Forgiveness as a practical decision, including forgiving yourself
+- Simple tools for sitting with a hard feeling instead of running from it
+
+**You leave with:** a personal release practice and language for what you feel, so it stops running the show from the background.
+
+### 4. Money Management: Tell your money where to go
+
+Money stress is rarely about the numbers alone. It's about not looking at them.
+
+- A judgment-free look at what comes in, what goes out, and where it disappears
+- The money beliefs you grew up with and how they shape what you do on payday
+- A simple spending plan built around your real life, one you can keep on a hard month
+- A step-by-step approach to debt, savings, and your first (or next) financial goal
+
+**You leave with:** a working budget, a savings target, and a plan for the one money problem that worries you most.
+
+### 5. Decision Making: Stop circling. Choose.
+
+Every decision you put off is still costing you: in time, in energy, in peace.
+
+- Why you get stuck: fear of being wrong, too many options, or other people's opinions
+- A repeatable framework for weighing a big choice without losing a month to it
+- Telling the difference between a wise pause and plain avoidance
+- Making peace with a decision once it's made, so you stop reopening it
+
+**You leave with:** a decision you've been postponing, finally made, and a method you can reuse for every one after it.
+
+### 6. Relationships: Build the circle that fits the life you want
+
+The people around you are either making room for your growth or crowding it out.
+
+- An honest map of your relationships: who fills you, who drains you, and who you've outgrown
+- Setting boundaries without guilt, and holding them when they're tested
+- Saying the hard thing clearly and kindly, at home and at work
+- Repairing what's worth repairing, and releasing what isn't
+
+**You leave with:** boundaries you can say out loud, a script for the conversation you've been dreading, and a plan for the relationships that matter most.
+
+## What's included
+
+- Six private 60-minute sessions with Taniesha, in person or by video call
+- A written summary and action step after every session
+- Practical worksheets for each of the six areas
+- Email support between sessions, so you're never stuck waiting for the next one
+- Your own completed Clear Life Blueprint: one plan covering all six areas, to keep working from after the course ends
+
+## This is for you if
+
+- You're doing well on paper and still feel stuck, tired, or scattered
+- You keep fixing one area of your life while another falls apart
+- You're done with motivation that fades by Monday and want something you can practice
+- You're ready to be honest, even when it's uncomfortable
+
+## This isn't for you if
+
+- You want someone to hand you answers without doing the work between sessions
+- You're looking for a quick fix. Real change takes all six conversations.
+
+## How it works
+
+1. **Book your first session** using the calendar below. Sessions are $100 each and booked one at a time, so there's no large upfront commitment.
+2. **Start with Session 1.** We map where you are and set your 90-day focus.
+3. **Work through the six areas** at a pace that suits your life. Weekly works best for most people.
+4. **Finish with your Blueprint** in hand, and a clear view of what comes next.
+
+## A note on what coaching is
+
+Coaching is a partnership, and your results depend on the work you put in between sessions. This course is not therapy, medical care, or professional financial advice, and it doesn't replace them. If you're working with a therapist or financial adviser, this course sits comfortably alongside that support.
+
+## Clean spaces. Clear mind. Successful life.
+
+You already know which room you've been avoiding. Book your first session and let's open the door.`,
+      imageUrl: "/images/portrait-2.jpg",
+      priceFromCents: 10000,
+      priceType: "FIXED",
+      requiresQuote: false,
+      isActive: true,
+      sortOrder: 2,
+      availabilityRules: {
+        create: [
+          { dayOfWeek: 1, startTime: "10:00", endTime: "14:00", slotDurationMin: 60 },
+          { dayOfWeek: 3, startTime: "10:00", endTime: "14:00", slotDurationMin: 60 },
+        ],
+      },
+    },
+  });
+  console.log(`Seeded coaching course: ${course.name} (${course.id})`);
 }
 
 async function seedBlogPosts() {
