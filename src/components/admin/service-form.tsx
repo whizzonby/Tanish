@@ -5,6 +5,7 @@ import type { AvailabilityRule, Service } from "@prisma/client";
 const categories = ["COACHING", "CLEANING", "CONSTRUCTION", "RENOVATION"] as const;
 const brands = ["PERSONAL", "CARING_TOUCH"] as const;
 const priceTypes = ["FIXED", "HOURLY", "QUOTE"] as const;
+const currencies = ["USD", "JMD"] as const;
 
 export function ServiceForm({
   action,
@@ -127,7 +128,7 @@ export function ServiceForm({
 
         <div>
           <label className="mb-1.5 block text-sm font-medium text-navy-900" htmlFor="priceFromDollars">
-            Price from (USD, optional)
+            Price from (optional)
           </label>
           <input
             id="priceFromDollars"
@@ -140,6 +141,24 @@ export function ServiceForm({
             }
             className="w-full rounded-lg border border-navy-800/15 px-4 py-2.5 text-sm text-navy-900 focus:border-gold-500 focus:outline-none"
           />
+        </div>
+
+        <div>
+          <label className="mb-1.5 block text-sm font-medium text-navy-900" htmlFor="currency">
+            Price currency
+          </label>
+          <select
+            id="currency"
+            name="currency"
+            defaultValue={service?.currency ?? "USD"}
+            className="w-full rounded-lg border border-navy-800/15 bg-white px-4 py-2.5 text-sm text-navy-900 focus:border-gold-500 focus:outline-none"
+          >
+            {currencies.map((c) => (
+              <option key={c} value={c}>
+                {c === "JMD" ? "JMD (Jamaican dollars, JM$)" : "USD (US dollars, $)"}
+              </option>
+            ))}
+          </select>
         </div>
 
         <div>

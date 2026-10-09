@@ -386,7 +386,7 @@ The people around you are either making room for your growth or crowding it out.
 
 ## How it works
 
-1. **Book your first session** using the calendar below. Sessions are $100 each and booked one at a time, so there's no large upfront commitment.
+1. **Book your first session** using the calendar below. The full six-session course is JM$25,000.
 2. **Start with Session 1.** We map where you are and set your 90-day focus.
 3. **Work through the six areas** at a pace that suits your life. Weekly works best for most people.
 4. **Finish with your Blueprint** in hand, and a clear view of what comes next.
@@ -399,7 +399,8 @@ Coaching is a partnership, and your results depend on the work you put in betwee
 
 You already know which room you've been avoiding. Book your first session and let's open the door.`,
       imageUrl: "/images/portrait-2.jpg",
-      priceFromCents: 10000,
+      priceFromCents: 2500000,
+      currency: "JMD",
       priceType: "FIXED",
       requiresQuote: false,
       isActive: true,
@@ -410,6 +411,20 @@ You already know which room you've been avoiding. Book your first session and le
           { dayOfWeek: 3, startTime: "10:00", endTime: "14:00", slotDurationMin: 60 },
         ],
       },
+    },
+  });
+  // The first version of this seed created the course at a US$100 placeholder
+  // price. Correct it only where that placeholder is still in place, so prices
+  // edited in the admin dashboard are left alone.
+  await prisma.service.updateMany({
+    where: { id: course.id, priceFromCents: 10000, currency: "USD" },
+    data: {
+      priceFromCents: 2500000,
+      currency: "JMD",
+      longDescription: course.longDescription?.replace(
+        "Sessions are $100 each and booked one at a time, so there's no large upfront commitment.",
+        "The full six-session course is JM$25,000."
+      ),
     },
   });
   console.log(`Seeded coaching course: ${course.name} (${course.id})`);

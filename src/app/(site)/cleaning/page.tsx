@@ -83,7 +83,7 @@ export default async function CleaningPage() {
                 <p className="mt-4 text-xs font-semibold uppercase tracking-wide text-gold-600">
                   {service.requiresQuote || service.priceFromCents == null
                     ? "Quote on request"
-                    : `From ${formatPrice(service.priceFromCents)}`}
+                    : `From ${formatPrice(service.priceFromCents, service.currency)}`}
                 </p>
               </div>
             ))}

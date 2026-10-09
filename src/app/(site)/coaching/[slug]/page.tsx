@@ -62,7 +62,7 @@ export default async function CoachingServicePage(props: PageProps<"/coaching/[s
           <p className="mt-6 text-sm font-semibold uppercase tracking-wide text-gold-600">
             {service.requiresQuote || service.priceFromCents == null
               ? "Contact for pricing"
-              : `From ${formatPrice(service.priceFromCents)}`}
+              : `From ${formatPrice(service.priceFromCents, service.currency)}`}
           </p>
 
           {detailHtml && (

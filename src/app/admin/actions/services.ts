@@ -34,6 +34,7 @@ function readServiceForm(formData: FormData) {
   const brand = String(formData.get("brand") ?? "") as Brand;
   const priceType = String(formData.get("priceType") ?? "QUOTE") as PriceType;
   const priceFromDollars = String(formData.get("priceFromDollars") ?? "").trim();
+  const currency = formData.get("currency") === "JMD" ? "JMD" : "USD";
   const requiresQuote = formData.get("requiresQuote") === "on";
   const isActive = formData.get("isActive") === "on";
   const sortOrder = Number(formData.get("sortOrder") ?? 0) || 0;
@@ -55,6 +56,7 @@ function readServiceForm(formData: FormData) {
     brand,
     priceType,
     priceFromCents: priceFromDollars ? Math.round(Number(priceFromDollars) * 100) : null,
+    currency,
     requiresQuote,
     isActive,
     sortOrder,

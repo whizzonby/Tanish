@@ -148,6 +148,7 @@ model Service {
   description   String
   longDescription String?
   priceFromCents Int?
+  currency      String          @default("USD")
   priceType     PriceType
   requiresQuote Boolean         @default(false)
   imageUrl      String?

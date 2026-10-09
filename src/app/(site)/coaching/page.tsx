@@ -104,7 +104,7 @@ export default async function CoachingPage() {
                     <p className="text-xs font-semibold uppercase tracking-wide text-gold-600">
                       {service.requiresQuote || service.priceFromCents == null
                         ? "Contact for pricing"
-                        : `From ${formatPrice(service.priceFromCents)}`}
+                        : `From ${formatPrice(service.priceFromCents, service.currency)}`}
                     </p>
                     <span className="text-xs font-semibold text-navy-900 group-hover:underline">
                       Learn more &rarr;

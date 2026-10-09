@@ -44,7 +44,7 @@ export default async function AdminServicesPage() {
                 <td className="px-5 py-3 text-navy-800/70">
                   {service.requiresQuote || service.priceFromCents == null
                     ? "Quote on request"
-                    : `From ${formatPrice(service.priceFromCents)}`}
+                    : `From ${formatPrice(service.priceFromCents, service.currency)}`}
                 </td>
                 <td className="px-5 py-3">
                   <span
